@@ -321,11 +321,3 @@ Follow project Java style and API compatibility rules.
 Add a `LICENSE` file (e.g. MIT) to the repository and reference it here.
 
 ---
-
-If you want, I can also:
-
-- Add an English and a Turkish version and switchable README
-- Add a sample `GeminiClient` implementation and integration test (Testcontainers)
-- Generate a sample GitHub Actions workflow for CI/CD
-
-Files referenced in this README: `src/main/java/com/dinelock/DineLockApplication.java`, `README.md`, and migration files under `src/main/resources/db/migration`.
