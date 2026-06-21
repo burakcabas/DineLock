@@ -17,6 +17,12 @@ import lombok.*; import java.time.LocalDateTime; import java.util.ArrayList; imp
 
     private LocalDateTime updatedAt;
 
+    // Restoranın mutfak türü (Örn: "İtalyan", "Asya", "Türk")
+    private String cuisineType;
+
+    // AI tarafından yorumlara bakılarak hesaplanan ortalama güvenilirlik puanı (1.0 - 5.0)
+    private Double aiSentimentScore;
+
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
