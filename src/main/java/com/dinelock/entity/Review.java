@@ -1,5 +1,6 @@
 package com.dinelock.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ public class Review {
     // Yorumun hangi restorana ait olduğunu belirten ilişki
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false)
+    @JsonIgnore
     private Restaurant restaurant;
 
     private LocalDateTime createdAt;

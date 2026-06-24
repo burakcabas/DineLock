@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DineLock | Restaurants</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.16);
+            --glass-border: rgba(255, 255, 255, 0.28);
+            --glass-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.35), transparent 28%),
+                radial-gradient(circle at top right, rgba(236, 72, 153, 0.28), transparent 24%),
+                linear-gradient(135deg, #0f172a 0%, #1e293b 48%, #334155 100%);
+            color: #f8fafc;
+        }
+
+        .glass-shell,
+        .glass-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .glass-shell {
+            border-radius: 1.75rem;
+        }
+
+        .glass-card {
+            border-radius: 1.25rem;
+            color: #f8fafc;
+        }
+
+        .section-label {
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            color: rgba(248, 250, 252, 0.72);
+        }
+
+        .muted-text {
+            color: rgba(248, 250, 252, 0.72);
+        }
+
+        .form-control,
+        .form-select {
+            background-color: rgba(15, 23, 42, 0.38);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f8fafc;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background-color: rgba(15, 23, 42, 0.5);
+            color: #fff;
+            border-color: rgba(147, 197, 253, 0.8);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: rgba(248, 250, 252, 0.55);
+        }
+
+        .table-card {
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body>
+<main class="container py-5">
+    <div class="glass-shell p-4 p-md-5">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+            <div>
+                <div class="section-label mb-2">DineLock Reservations</div>
+                <h1 class="display-6 fw-semibold mb-2">Discover and reserve top restaurants</h1>
+                <p class="lead mb-0 muted-text">Browse premium restaurants, review table availability, and book your next dining experience in seconds.</p>
+            </div>
+        </div>
+
+        <div th:if="${param.success != null and param.success[0] == 'true'}" class="alert alert-success alert-dismissible fade show" role="alert">
+            Your reservation request was submitted successfully.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${param.error != null and param.error[0] == 'conflict'}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            The selected time slot conflicts with an existing reservation. Please choose another time.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12" th:if="${restaurants == null or #lists.isEmpty(restaurants)}">
+                <div class="glass-card p-4 text-center">
+                    <h2 class="h4 mb-2">No restaurants available</h2>
+                    <p class="mb-0 muted-text">Please check back later for curated restaurant recommendations.</p>
+                </div>
+            </div>
+
+            <div class="col-12" th:each="restaurant : ${restaurants}">
+                <div class="glass-card p-4 p-md-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
+                        <div>
+                            <div class="section-label mb-2">Restaurant</div>
+                            <h2 class="h3 mb-2" th:text="${restaurant.name}">Restaurant Name</h2>
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                <span class="badge text-bg-primary" th:text="${restaurant.cuisineType}">Italian</span>
+                                <span class="badge text-bg-light text-dark">
+                                    AI Sentiment Score:
+                                    <span th:text="${restaurant.aiSentimentScore}">4.8</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3" th:if="${restaurant.tables != null and !#lists.isEmpty(restaurant.tables)}">
+                        <div class="col-12 col-xl-6" th:each="table : ${restaurant.tables}">
+                            <div class="table-card rounded-4 p-3 p-md-4 h-100">
+                                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                    <div>
+                                        <div class="section-label mb-1">Table</div>
+                                        <h3 class="h5 mb-0" th:text="${table.tableNumber}">T1</h3>
+                                    </div>
+                                    <span class="badge text-bg-secondary" th:text="'Capacity ' + ${table.capacity}">Capacity 4</span>
+                                </div>
+
+                                <form th:action="@{/reserve}" method="post" class="row g-3">
+                                    <input type="hidden" name="tableId" th:value="${table.id}">
+
+                                    <div class="col-12">
+                                        <label class="form-label small text-uppercase muted-text" th:for="'customerName-' + ${table.id}">Customer Name</label>
+                                        <input type="text" class="form-control" name="customerName" th:id="'customerName-' + ${table.id}" placeholder="Enter your name" required>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label small text-uppercase muted-text" th:for="'numberOfGuests-' + ${table.id}">Guests</label>
+                                        <input type="number" class="form-control" name="numberOfGuests" th:id="'numberOfGuests-' + ${table.id}" min="1" step="1" placeholder="2" required>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label small text-uppercase muted-text" th:for="'startTime-' + ${table.id}">Start Time</label>
+                                        <input type="datetime-local" class="form-control" name="startTime" th:id="'startTime-' + ${table.id}" required>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label small text-uppercase muted-text" th:for="'endTime-' + ${table.id}">End Time</label>
+                                        <input type="datetime-local" class="form-control" name="endTime" th:id="'endTime-' + ${table.id}" required>
+                                    </div>
+
+                                    <div class="col-12 d-grid">
+                                        <button type="submit" class="btn btn-primary btn-lg">Book Table</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${restaurant.tables == null or #lists.isEmpty(restaurant.tables)}" class="alert alert-info mb-0">
+                        No tables available for this restaurant.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

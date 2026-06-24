@@ -1,4 +1,5 @@
 package com.dinelock.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*; import java.time.LocalDateTime; import java.util.ArrayList; import java.util.List;
 @Entity @Table(name = "restaurant_tables") @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder @ToString @EqualsAndHashCode public class RestaurantTable {
@@ -24,6 +25,7 @@ import lombok.*; import java.time.LocalDateTime; import java.util.ArrayList; imp
     @JoinColumn(name = "restaurant_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Restaurant restaurant;
 
     @OneToMany(mappedBy = "restaurantTable", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
