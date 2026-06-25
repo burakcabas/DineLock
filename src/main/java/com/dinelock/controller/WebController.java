@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 
@@ -23,39 +24,54 @@ public class WebController {
     private final ReservationService reservationService;
     private final RestaurantTableRepository restaurantTableRepository;
 
+    // 1. AŞAMA: Giriş (Landing) Sayfası
     @GetMapping("/")
-    public String index(Model model) {
-        model.addAttribute("restaurants", restaurantQueryService.getTopRestaurantsByCuisine("Italian"));
-        return "index";
+    public String index() {
+        return "landing"; // landing.html dosyasını çağıracak
     }
 
+    // 2. AŞAMA: Mutfak Seçimine Göre Restoranları Listeleme
+    @GetMapping("/restaurants")
+    public String getRestaurantsByCuisine(@RequestParam(name = "cuisineType", defaultValue = "Italian") String cuisineType, Model model) {
+        // Seçilen mutfağa göre restoranları getir ve modele ekle
+        model.addAttribute("restaurants", restaurantQueryService.getTopRestaurantsByCuisine(cuisineType));
+        model.addAttribute("selectedCuisine", cuisineType);
+        return "dashboard"; // dashboard.html dosyasını çağıracak
+    }
+
+    // 3. AŞAMA: Rezervasyon İşlemi (Race Condition Test Noktası)
     @PostMapping("/reserve")
-    public String reserve(
-            @RequestParam Long tableId,
-            @RequestParam String customerName,
-            @RequestParam LocalDateTime startTime,
-            @RequestParam LocalDateTime endTime,
-            @RequestParam Integer numberOfGuests
-    ) {
+    public String reserveTable(@RequestParam Long tableId,
+                               @RequestParam String customerName,
+                               @RequestParam LocalDateTime startTime,
+                               @RequestParam LocalDateTime endTime,
+                               @RequestParam Integer numberOfGuests,
+                               @RequestParam String selectedCuisine, // Hangi mutfaktan geldiğini hatırlamak için
+                               RedirectAttributes redirectAttributes) {
         try {
-            RestaurantTable restaurantTable = restaurantTableRepository.findById(tableId)
-                    .orElseThrow(() -> new IllegalArgumentException("Restaurant table not found with id: " + tableId));
+            RestaurantTable table = restaurantTableRepository.findById(tableId)
+                    .orElseThrow(() -> new IllegalArgumentException("Masa bulunamadı."));
 
             Reservation reservation = Reservation.builder()
-                    .restaurantTable(restaurantTable)
+                    .restaurantTable(table)
                     .customerName(customerName)
                     .startTime(startTime)
                     .endTime(endTime)
                     .numberOfGuests(numberOfGuests)
-                    .status(Reservation.ReservationStatus.PENDING)
+                    .status(Reservation.ReservationStatus.valueOf("PENDING"))
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
                     .build();
 
             reservationService.createReservation(reservation);
-            return "redirect:/?success=true";
-        } catch (ReservationConflictException ex) {
-            return "redirect:/?error=conflict";
+            // Başarılı olursa aynı mutfağa başarı mesajıyla dön
+            redirectAttributes.addAttribute("cuisineType", selectedCuisine);
+            return "redirect:/restaurants?success=true";
+
+        } catch (ReservationConflictException e) {
+            // Çakışma olursa aynı mutfağa hata mesajıyla dön
+            redirectAttributes.addAttribute("cuisineType", selectedCuisine);
+            return "redirect:/restaurants?error=conflict";
         }
     }
 }
-
-
