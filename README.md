@@ -49,3 +49,32 @@ The entire application and its database are fully containerized. You do not need
 Create a `.env` file in the root directory of the project and insert your API key:
 ```env
 GEMINI_API_KEY=your_google_gemini_api_key_here
+
+
+### 2. Build and Run the Containers
+
+Open your terminal in the project root and execute the following command:
+
+```bash
+docker-compose up --build -d
+```
+
+Docker will pull the MySQL 8.0 image, build the Spring Boot application image via the Dockerfile, and map the required ports.
+
+### 3. Access the Application
+
+Once the containers are running, open your browser and navigate to:
+
+```text
+http://localhost:8080
+```
+
+> **Note:** The database is configured to generate deterministic seed data upon its first initialization.
+
+## 🔒 Error Handling Demo
+
+To test the Pessimistic Lock mechanism:
+
+1. Open the application in two separate incognito browser windows.
+2. Attempt to book the exact same table for the exact same time simultaneously.
+3. Observe how the system securely processes one transaction while routing the other to a controlled **"Reservation Conflict"** UI warning, rather than a `500 Internal Server Error`.
