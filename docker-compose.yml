@@ -1,0 +1,32 @@
+services:
+  # 1. MySQL Veritabanı Konteyneri
+  db:
+    image: mysql:8.0.33
+    container_name: dinelock-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: dinelock
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - "3307:3306" # SADECE BU SATIR DEĞİŞTİ (Dış port 3307 oldu)
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # 2. Spring Boot Uygulama Konteyneri
+  app:
+    build: .
+    container_name: dinelock-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # Veritabanı URL'sini eziyoruz, localhost yerine 'db' konteynerine bağlanıyor
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/dinelock?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      # API Anahtarını bilgisayarının ortam değişkenlerinden alıp konteynere aktarıyor
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - db
+
+volumes:
+  # Veritabanı verilerinin konteyner kapansa bile silinmemesi için kalıcı disk alanı
+  db_data:
