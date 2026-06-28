@@ -49,8 +49,7 @@ The entire application and its database are fully containerized. You do not need
 Create a `.env` file in the root directory of the project and insert your API key:
 ```env
 GEMINI_API_KEY=your_google_gemini_api_key_here
-
----
+```
 
 ### 2. Build and Run the Containers
 
