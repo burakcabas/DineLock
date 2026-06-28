@@ -50,6 +50,7 @@ Create a `.env` file in the root directory of the project and insert your API ke
 ```env
 GEMINI_API_KEY=your_google_gemini_api_key_here
 
+---
 
 ### 2. Build and Run the Containers
 
