@@ -81,7 +81,7 @@ To test the Pessimistic Lock mechanism:
 
 ## 📸 Screenshots
 
-![DineLock Home Screen](images/screen1.jpg)
+![DineLock Home Screen](images/screen1.png)
 *The landing page features an elegant Glassmorphism UI design, allowing users to explore top-rated restaurants filtered by their preferred cuisine.*
 
 ![DineLock Reservation Screen](images/screen2.png)
@@ -90,5 +90,5 @@ To test the Pessimistic Lock mechanism:
 ![DineLock AI Analysis](images/screen3.png)
 *Clicking the booking button triggers an asynchronous AJAX call to the Gemini AI Engine, parsing sentiment scores on the fly while displaying a clean modal loading state.*
 
-![DineLock Concurrency Handling](images/screen4.jpg)
+![DineLock Concurrency Handling](images/screen4.png)
 *Demonstration of the system's lock mechanism processing one booking successfully while immediately routing the conflicting simultaneous transaction to a controlled warning banner.*
